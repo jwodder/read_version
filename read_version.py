@@ -16,20 +16,20 @@ import os.path
 
 __all__ = ['read_version']
 
-def read_version(*fpath, **kwargs):
+def read_version(*fpath, variable='__version__', **kwargs):
     if not fpath:
         raise ValueError('No filepath passed to read_version()')
     fpath = os.path.join(fpath)
     if not os.path.isabs(fpath):
         caller_file = inspect.stack()[1][0].f_globals["__file__"]
         fpath = os.path.join(os.path.dirname(caller_file), fpath)
-    return read_version_from_file(fpath, **kwargs)
-
-def read_version_from_file(fpath, variable='__version__', default=None):
     with open(fpath, 'rb') as fp:
         src = fp.read()
     top_level = ast.parse(src)
-    result = default
+    try:
+        result = kwargs["default"]
+    except KeyError:
+        pass
     for statement in top_level.body:
         if isinstance(statement, ast.Assign):
             try:
@@ -45,4 +45,7 @@ def read_version_from_file(fpath, variable='__version__', default=None):
                                 result = v
                     elif target.id == variable
                         result = value
-    return result
+    try:
+        return result
+    except NameError:
+        raise ValueError('No assignment to {!r} found in file'.format(variable))
