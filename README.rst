@@ -63,7 +63,7 @@ Usage
 
         [build-system]
         requires = [
-            "read_version",
+            "read_version ~= 0.1.0",
             "setuptools",
             "wheel"
         ]
