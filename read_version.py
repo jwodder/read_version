@@ -14,6 +14,8 @@ import ast
 import inspect
 import os.path
 
+__all__ = ['read_version']
+
 def read_version(*fpath, **kwargs):
     if not fpath:
         raise ValueError('No filepath passed to read_version()')
