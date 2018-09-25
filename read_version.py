@@ -16,35 +16,34 @@ import os.path
 
 __all__ = ['read_version']
 
-def read_version(*fpath, variable='__version__', **kwargs):
+def read_version(*fpath, **kwargs):
     if not fpath:
         raise ValueError('No filepath passed to read_version()')
-    fpath = os.path.join(fpath)
+    fpath = os.path.join(*fpath)
     if not os.path.isabs(fpath):
         caller_file = inspect.stack()[1][0].f_globals["__file__"]
         fpath = os.path.join(os.path.dirname(caller_file), fpath)
     with open(fpath, 'rb') as fp:
         src = fp.read()
     top_level = ast.parse(src)
+    variable = kwargs.get("variable", "__version__")
     try:
         result = kwargs["default"]
     except KeyError:
         pass
     for statement in top_level.body:
         if isinstance(statement, ast.Assign):
-            try:
-                value = ast.literal_eval(statement.value)
-            except (TypeError, ValueError):
-                pass
-            else:
-                for target in statement.targets:
-                    if isinstance(target, ast.Tuple):
+            for target in statement.targets:
+                if isinstance(target, ast.Tuple):
+                    if any(isinstance(t, ast.Name) and t.id == variable
+                           for t in target.elts):
+                        value = ast.literal_eval(statement.value)
                         for t,v in zip(target.elts, value):
                             assert isinstance(t, ast.Name)
                             if t.id == variable:
                                 result = v
-                    elif target.id == variable
-                        result = value
+                elif target.id == variable:
+                    result = ast.literal_eval(statement.value)
     try:
         return result
     except NameError:
