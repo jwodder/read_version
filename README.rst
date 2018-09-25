@@ -73,10 +73,8 @@ Usage
 
         from read_version import read_version
 
-        version = read_version('packagename', '__init__.py')
-
         setup(
-            version = version,
+            version = read_version('packagename', '__init__.py'),
             ...
         )
 
@@ -90,26 +88,28 @@ signature is::
 
     read_version(*filepath, variable='__version__', default=NOTHING)
 
-``read_version()`` requires one or more file path components as positional
-arguments specifying what file to parse ``__version__`` from.  The path
-components will be joined together with ``os.path.join()``, and then, if the
-path isn't absolute, the directory containing the script calling
-``read_version()`` will be prepended to the path.  (No more
-``join(dirname(__file__), ...)`` boilerplate needed!)
+``read_version()`` takes one or more file path components pointing to a Python
+source file to parse.  The path components will be joined together with
+``os.path.join()``, and then, if the path isn't absolute, the path to the
+directory containing the script calling ``read_version()`` will be prepended to
+the path.  (No more ``join(dirname(__file__), ...)`` boilerplate needed!)
+``read_version()`` then parses the given Python file and searches through the
+parse tree for any assignments to a variable named ``__version__``, returning
+the last value assigned.
 
-By default, ``read_version()`` searches for assignments to a variable named
-``__version__``, returning the value of the last assignment.  A different
-variable name can be searched for instead by setting the ``variable`` keyword
-argument to the name of the desired variable.
+The ``variable`` keyword argument can be set to the name of a variable other
+than ``__version__`` to search for assignments to a different variable instead.
 
 If no assignments to the variable are found, a ``ValueError`` is raised.  To
-instead return a default value, set the ``default`` keyword argument.
+instead return a default value when this happens, set the ``default`` keyword
+argument.
 
 
 Restrictions
 ============
-``read_variable`` only finds assignments to ``__version__`` that occur at the
-top level of the module, outside of any blocks.
+``read_variable`` only finds assignments that occur at the top level of the
+module, outside of any blocks.
 
-Only assignments of literal values to ``__version__`` are supported; more
-complicated expressions will cause an error to be raised.
+Only assignments of literal values are supported; assignments to
+``__version__`` involving more complicated expressions will cause an error to
+be raised.
