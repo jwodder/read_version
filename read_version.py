@@ -1,4 +1,15 @@
 import ast
+import inspect
+import os.path
+
+def read_version(*fpath, **kwargs):
+    if not fpath:
+        raise ValueError('No filepath passed to read_version()')
+    fpath = os.path.join(fpath)
+    if not os.path.isabs(fpath):
+        caller_file = inspect.stack()[1][0].f_globals["__file__"]
+        fpath = os.path.join(os.path.dirname(caller_file), fpath)
+    return read_version_from_file(fpath, **kwargs)
 
 def read_version_from_file(fpath, variable='__version__', default=None):
     with open(fpath, 'rb') as fp:
