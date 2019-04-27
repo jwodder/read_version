@@ -27,7 +27,7 @@ someone did, and this is that package.
 Visit <https://github.com/jwodder/read_version> for more information.
 """
 
-__version__      = '0.1.0'
+__version__      = '0.1.1.dev1'
 __author__       = 'John Thorvald Wodder II'
 __author_email__ = 'read-version@varonathe.org'
 __license__      = 'MIT'
@@ -81,10 +81,9 @@ def read_version(*fpath, **kwargs):
                            for t in target.elts):
                         value = ast.literal_eval(statement.value)
                         for t,v in zip(target.elts, value):
-                            assert isinstance(t, ast.Name)
-                            if t.id == variable:
+                            if isinstance(t, ast.Name) and t.id == variable:
                                 result = v
-                elif target.id == variable:
+                elif isinstance(target, ast.Name) and target.id == variable:
                     result = ast.literal_eval(statement.value)
     try:
         return result
