@@ -22,7 +22,10 @@ source?  Something like this?
     )
 
 Someone needs to put all that into a reusable package, am I right?  Well,
-someone did, and this is that package.
+someone did, and this is that package.  It exports a single function that does
+the above, perfect for importing into your ``setup.py``, and *(New in v0.2.0!)*
+this package even lets you map Python variables to supported metadata fields
+via your ``pyproject.toml``.
 
 Visit <https://github.com/jwodder/read_version> for more information.
 """

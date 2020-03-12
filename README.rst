@@ -22,6 +22,7 @@
 `GitHub <https://github.com/jwodder/read_version>`_
 | `PyPI <https://pypi.org/project/read_version/>`_
 | `Issues <https://github.com/jwodder/read_version/issues>`_
+| `Changelog <https://github.com/jwodder/read_version/blob/master/CHANGELOG.md>`_
 
 When creating a ``setup.py`` for a new project, do you find yourself always
 writing the same block of code for parsing ``__version__`` from your project's
@@ -44,7 +45,10 @@ source?  Something like this?
     )
 
 Someone needs to put all that into a reusable package, am I right?  Well,
-someone did, and this is that package.
+someone did, and this is that package.  It exports a single function that does
+the above, perfect for importing into your ``setup.py``, and *(New in v0.2.0!)*
+this package even lets you map Python variables to supported metadata fields
+via your ``pyproject.toml``.
 
 Installation
 ============
@@ -53,9 +57,18 @@ Just use `pip <https://pip.pypa.io>`_ (You have pip, right?) to install
 
     pip install read_version
 
+``read_version`` also has a ``toml`` extra that provides support for
+reading configuration from ``pyproject.toml``.  Install it with::
+
+    pip install 'read_version[toml]'
+
 
 Usage
 =====
+
+The Functional Way
+------------------
+
 1. Install ``read_version`` in your development environment.
 
 2. Add a ``pyproject.toml`` file to your project declaring ``read_version`` as
@@ -66,7 +79,7 @@ Usage
 
         [build-system]
         requires = [
-            "read_version ~= 0.1.0",
+            "read_version ~= 0.2.0",
             "setuptools",
             "wheel"
         ]
@@ -83,6 +96,82 @@ Usage
 
 4. Done!
 
+The Declarative Way
+-------------------
+
+*New in version 0.2.0!*
+
+1. Install ``read_version`` in your development environment with the ``toml``
+   extra::
+
+    pip install 'read_version[toml]'
+
+   You will also need version 42.0.0 or later of ``setuptools``::
+
+    pip install -U 'setuptools>=42'
+
+2. Add a ``pyproject.toml`` file to your project declaring
+   ``read_version[toml]`` as a build dependency and also requiring version
+   42.0.0 or later of ``setuptools``.  The relevant section of the file should
+   look like::
+
+        [build-system]
+        requires = [
+            "read_version[toml] ~= 0.2.0",
+            "setuptools >= 42.0.0",
+            "wheel"
+        ]
+
+3. Get rid of your boilerplate ``__version__``-finding code in your
+   ``setup.py``.  Instead, for each metadata field that you want to be read
+   from a variable in a Python source file, add a table to your
+   ``pyproject.toml`` file named "``tool.read_version.FIELD``", where ``FIELD``
+   is replaced by the lowercase name of the field.  Supported fields are:
+
+   - ``author``
+   - ``author_email``
+   - ``description`` (Note that this is the short description or summary, not
+     the long description!)
+   - ``keywords`` (It is recommended to use a list of strings as the value or
+     else ``setuptools`` might mangle it)
+   - ``license``
+   - ``maintainer``
+   - ``maintainer_email``
+   - ``url``
+   - ``version``
+
+   (Tables with unsupported or unknown field names are ignored.)
+
+   Each such table may contain the following keys:
+
+   :path: *(Required)* The path to the source file containing the variable to
+          read, relative to the project root; this may be given as either a
+          forward-slash-separated path or as a list of path components
+   :variable: The name of the Python variable to get the value from; defaults
+              to ``"__version__"``
+   :default: If the variable cannot be found in the source file, use the given
+             value instead; if the variable cannot be found and ``default`` is
+             not set, an error will occur
+
+   Some example entries::
+
+    # Set the project's version to the value of __version__ in packagename/__init__.py
+    [tool.read_version.version]
+    path = "packagename/__init__.py"
+
+    # Set the project's author to the value of __author__ in packagename/about.py
+    [tool.read_version.author]
+    path = ["packagename", "about.py"]
+    variable = "__author__"
+
+    # Set the project's license to the value of LICENSE in packagename/about.py.
+    # If the variable isn't found, set the license field to "Proprietary".
+    [tool.read_version.license]
+    path = ["packagename", "about.py"]
+    variable = "LICENSE"
+    default = "Proprietary"
+
+4. Done!
 
 API
 ===
@@ -113,6 +202,6 @@ Restrictions
 ``read_variable`` only finds assignments that occur at the top level of the
 module, outside of any blocks.
 
-Only assignments of literal values are supported; assignments to
-``__version__`` involving more complicated expressions will cause an error to
-be raised.
+Only assignments of literal values are supported; assignments to the
+searched-for variable involving more complicated expressions will cause an
+error to be raised.
