@@ -34,8 +34,12 @@ __license__      = 'MIT'
 __url__          = 'https://github.com/jwodder/read_version'
 
 import ast
+from   distutils import log
+from   errno     import ENOENT
 import inspect
+import os
 import os.path
+import sys
 
 __all__ = ['read_version']
 
@@ -89,3 +93,59 @@ def read_version(*fpath, **kwargs):
         return result
     except NameError:
         raise ValueError('No assignment to {!r} found in file'.format(variable))
+
+
+SETTABLE_METADATA_ATTRIBUTES = [
+    'author',
+    'author_email',
+    'description',
+    'keywords',
+    'license',
+    'maintainer',
+    'maintainer_email',
+    'url',
+    'version',
+]
+
+def setuptools_finalizer(dist):
+    # I *think* it's reasonable to assume that the project root is always the
+    # current directory when this function is called.  Setuptools doesn't seem
+    # to have decent support for running `setup.py` from another directory, and
+    # the pep517.build command changes the working directory to the project
+    # directory when run.  PEP 517 also says, "All hooks are run with working
+    # directory set to the root of the source tree".
+    PROJECT_ROOT = os.path.abspath(os.curdir)
+    try:
+        import toml
+    except ImportError:
+        log.info('read_version: toml not installed; not using pyproject.toml')
+        return
+    try:
+        cfg = toml.load(os.path.join(PROJECT_ROOT, 'pyproject.toml'))
+    except IOError as e:
+        if e.errno == ENOENT:
+            log.info('read_version: pyproject.toml not found')
+            return
+        else:
+            raise
+    cfg = cfg.get("tool", {}).get("read_version")
+    for attrib in SETTABLE_METADATA_ATTRIBUTES:
+        if attrib in cfg and isinstance(cfg[attrib], dict):
+            try:
+                path = cfg[attrib]["path"]
+            except KeyError:
+                sys.exit(
+                    '"path" key of tool.read_version.{} not set in'
+                    ' pyproject.toml'.format(attrib)
+                )
+            if isinstance(path, list):
+                path = os.path.join(PROJECT_ROOT, *path)
+            else:
+                path = os.path.join(PROJECT_ROOT, path)
+            kwargs = {}
+            for k in ('variable', 'default'):
+                if k in cfg[attrib]:
+                    kwargs[k] = cfg[attrib][k]
+            value = read_version(path, **kwargs)
+            log.info('read_version: reading %s value from file', attrib)
+            setattr(dist.metadata, attrib, value)

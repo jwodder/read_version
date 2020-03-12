@@ -12,6 +12,6 @@ python:
 install:
     - pip install codecov tox
 script:
-    - tox -e py
+    - tox -e py-toml,py-notoml
 after_success:
     - codecov

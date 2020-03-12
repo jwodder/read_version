@@ -1,0 +1,9 @@
+__version__ = '51a'
+__author__ = 'Auctor Huius'
+__author_email__ = 'test@example.com'
+__description__ = '*Definitely* not a real package'
+__keywords__ = "setuptools metadata test"
+__license__ = 'MIT'
+__maintainer__ = 'Some gnomes'
+__maintainer_email__ = 'gnomes@example.org'
+__url__ = 'https://example.nil'
