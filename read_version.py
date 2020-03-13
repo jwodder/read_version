@@ -149,6 +149,6 @@ def setuptools_finalizer(dist):
             for k in ('variable', 'default'):
                 if k in cfg[attrib]:
                     kwargs[k] = cfg[attrib][k]
-            value = read_version(path, **kwargs)
             log.info('read_version: reading %s value from file', attrib)
+            value = read_version(path, **kwargs)
             setattr(dist.metadata, attrib, value)
