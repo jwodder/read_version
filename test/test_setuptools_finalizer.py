@@ -38,6 +38,7 @@ PROJECT_DIR = join(dirname(__file__), 'data', 'projects')
     ('all-attribs-overwrite', '--maintainer', 'Some gnomes'),
     ('all-attribs-overwrite', '--maintainer-email', 'gnomes@example.org'),
     ('all-attribs-overwrite', '--url', 'https://example.nil'),
+    ('no-pyproject', '--version', '3.14'),
 ])
 def test_setuptools_finalizer_with_toml(project, option, value):
     r = check_output(
@@ -107,6 +108,7 @@ def test_setuptools_finalizer_with_toml_missing_variable():
     ('all-attribs-overwrite', '--maintainer', 'Manny Tainer'),
     ('all-attribs-overwrite', '--maintainer-email', 'you@example.org'),
     ('all-attribs-overwrite', '--url', 'https://example.net'),
+    ('no-pyproject', '--version', '3.14'),
 ])
 def test_setuptools_finalizer_without_toml(project, option, value):
     r = check_output(
