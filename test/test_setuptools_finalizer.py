@@ -1,5 +1,5 @@
 from   os.path    import dirname, join
-from   subprocess import CalledProcessError, PIPE, STDOUT, Popen, check_output
+from   subprocess import PIPE, Popen, check_output
 import pytest
 
 try:
@@ -75,17 +75,18 @@ def test_setuptools_finalizer_with_toml(project, option, value):
     ('badspec03', 'tool.read_version.version: Invalid specifier {!r}'.format(u':__version__')),
 ])
 def test_setuptools_finalizer_with_toml_error(project, errmsg):
-    with pytest.raises(CalledProcessError) as excinfo:
-        check_output(
-            ['python', 'setup.py', '--version'],
-            cwd=join(PROJECT_DIR, project),
-            stderr=STDOUT,
-        )
-    r = excinfo.value.output
-    if not isinstance(r, str):
+    p = Popen(
+        ['python', 'setup.py', '--version'],
+        cwd=join(PROJECT_DIR, project),
+        #stdout=PIPE,
+        stderr=PIPE,
+    )
+    _, err = p.communicate()
+    assert p.returncode != 0
+    if not isinstance(err, str):
         # Python 3
-        r = r.decode()
-    assert errmsg in r
+        err = err.decode()
+    assert errmsg in err
 
 @pytest.mark.skipif(not has_toml, reason='Requires toml package')
 def test_setuptools_finalizer_with_toml_not_table_warning():
