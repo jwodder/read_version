@@ -39,6 +39,18 @@ PROJECT_DIR = join(dirname(__file__), 'data', 'projects')
     ('all-attribs-overwrite', '--maintainer-email', 'gnomes@example.org'),
     ('all-attribs-overwrite', '--url', 'https://example.nil'),
     ('no-pyproject', '--version', '3.14'),
+    ('epstring', '--version', '1.4.9'),
+    ('epstring-dotted', '--version', '5.6.2.50'),
+    ('inline-table', '--version', '3.2.2.4'),
+    ('all-attribs-ep', '--version', '9001'),
+    ('all-attribs-ep', '--author', 'Joe Q. Author'),
+    ('all-attribs-ep', '--author-email', 'me@example.com'),
+    ('all-attribs-ep', '--description', 'Not a real package'),
+    ('all-attribs-ep', '--keywords', 'test,metadata,setuptools'),
+    ('all-attribs-ep', '--license', 'WTFPL'),
+    ('all-attribs-ep', '--maintainer', 'Manny Tainer'),
+    ('all-attribs-ep', '--maintainer-email', 'you@example.org'),
+    ('all-attribs-ep', '--url', 'https://example.net'),
 ])
 def test_setuptools_finalizer_with_toml(project, option, value):
     r = check_output(
@@ -109,6 +121,18 @@ def test_setuptools_finalizer_with_toml_missing_variable():
     ('all-attribs-overwrite', '--maintainer-email', 'you@example.org'),
     ('all-attribs-overwrite', '--url', 'https://example.net'),
     ('no-pyproject', '--version', '3.14'),
+    ('epstring', '--version', '0.0.0'),
+    ('epstring-dotted', '--version', '0.0.0'),
+    ('inline-table', '--version', '0.0.0'),
+    ('all-attribs-ep', '--version', '0.0.0'),
+    ('all-attribs-ep', '--author', 'UNKNOWN'),
+    ('all-attribs-ep', '--author-email', 'UNKNOWN'),
+    ('all-attribs-ep', '--description', 'UNKNOWN'),
+    ('all-attribs-ep', '--keywords', ''),
+    ('all-attribs-ep', '--license', 'UNKNOWN'),
+    ('all-attribs-ep', '--maintainer', 'UNKNOWN'),
+    ('all-attribs-ep', '--maintainer-email', 'UNKNOWN'),
+    ('all-attribs-ep', '--url', 'UNKNOWN'),
 ])
 def test_setuptools_finalizer_without_toml(project, option, value):
     r = check_output(

@@ -98,7 +98,7 @@ def read_version(*fpath, **kwargs):
         raise ValueError('No assignment to {!r} found in file'.format(variable))
 
 
-SETTABLE_METADATA_ATTRIBUTES = [
+SETTABLE_METADATA_ATTRIBUTES = {
     'author',
     'author_email',
     'description',
@@ -108,7 +108,12 @@ SETTABLE_METADATA_ATTRIBUTES = [
     'maintainer_email',
     'url',
     'version',
-]
+}
+
+try:
+    basestring
+except NameError:
+    basestring = str
 
 def setuptools_finalizer(dist):
     # I *think* it's reasonable to assume that the project root is always the
@@ -131,24 +136,45 @@ def setuptools_finalizer(dist):
             return
         else:
             raise
-    cfg = cfg.get("tool", {}).get("read_version")
-    for attrib in SETTABLE_METADATA_ATTRIBUTES:
-        if attrib in cfg and isinstance(cfg[attrib], dict):
-            try:
-                path = cfg[attrib]["path"]
-            except KeyError:
-                sys.exit(
-                    '"path" key of tool.read_version.{} not set in'
-                    ' pyproject.toml'.format(attrib)
-                )
-            if isinstance(path, list):
+    cfg = cfg.get("tool", {}).get("read_version", {})
+    if not isinstance(cfg, dict):
+        log.warn('read_version: "tool.read_version" is not a table; ignoring')
+        return
+    for attrib, spec in cfg.items():
+        if attrib in SETTABLE_METADATA_ATTRIBUTES:
+            if isinstance(spec, basestring):
+                modpath, _, varname = spec.partition(':')
+                if not modpath or not varname:
+                    sys.exit('tool.read_version.{}: Invalid specifier {!r}'
+                             .format(attrib, spec))
+                path = modpath.split('.')
+                if not path:
+                    sys.exit('tool.read_version.{}: Invalid specifier {!r}'
+                             .format(attrib, spec))
+                path[-1] += '.py'
                 path = os.path.join(PROJECT_ROOT, *path)
+                kwargs = {"variable": varname}
+            elif isinstance(spec, dict):
+                try:
+                    path = spec["path"]
+                except KeyError:
+                    sys.exit(
+                        '"path" key of tool.read_version.{} not set in'
+                        ' pyproject.toml'.format(attrib)
+                    )
+                if isinstance(path, list):
+                    path = os.path.join(PROJECT_ROOT, *path)
+                else:
+                    path = os.path.join(PROJECT_ROOT, path)
+                kwargs = {}
+                for k in ('variable', 'default'):
+                    if k in cfg[attrib]:
+                        kwargs[k] = cfg[attrib][k]
             else:
-                path = os.path.join(PROJECT_ROOT, path)
-            kwargs = {}
-            for k in ('variable', 'default'):
-                if k in cfg[attrib]:
-                    kwargs[k] = cfg[attrib][k]
+                sys.exit('tool.read_version.{} must be a string or table'
+                         .format(attrib))
             log.info('read_version: reading %s value from file', attrib)
             value = read_version(path, **kwargs)
             setattr(dist.metadata, attrib, value)
+        else:
+            log.warn('read_version: ignoring unknown field %r', attrib)
