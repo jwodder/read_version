@@ -125,26 +125,68 @@ The Declarative Way
         build-backend = "setuptools.build_meta"
 
 3. Get rid of your boilerplate ``__version__``-finding code in your
-   ``setup.py``.  Instead, for each metadata field that you want to be read
-   from a variable in a Python source file, add a table to your
-   ``pyproject.toml`` file named "``tool.read_version.FIELD``", where ``FIELD``
-   is replaced by the lowercase name of the field.  Supported fields are:
+   ``setup.py``.  Instead, add a ``tool.read_version`` table to your
+   ``pyproject.toml`` file, and for each metadata field that you want to be
+   read from a variable in a Python source file, add an entry to this table of
+   the form ``FIELD = "dotted.file.path:varname"``, where:
 
-   - ``author``
-   - ``author_email``
-   - ``description`` (Note that this is the short description or summary, not
-     the long description!)
-   - ``keywords`` (It is recommended to use a list of strings as the value or
-     else ``setuptools`` might mangle it)
-   - ``license``
-   - ``maintainer``
-   - ``maintainer_email``
-   - ``url``
-   - ``version``
+   - ``FIELD`` is replaced by the lowercase name of the field.  Supported
+     fields are:
 
-   (Tables with unsupported or unknown field names are ignored.)
+     - ``author``
+     - ``author_email``
+     - ``description`` (Note that this is the short description or summary, not
+       the long description!)
+     - ``keywords`` (It is recommended to use a list of strings as the value or
+       else ``setuptools`` might mangle it)
+     - ``license``
+     - ``maintainer``
+     - ``maintainer_email``
+     - ``url``
+     - ``version``
 
-   Each such table may contain the following keys:
+     Entries with unsupported or unknown field names are ignored.
+
+   - ``dotted.file.path`` is replaced by the path (relative to the project
+     root) to the file containing the variable, with path components separated
+     by dots and the ``.py`` at the end of the last path component dropped
+
+   - ``varname`` is replaced by the name of the variable to read
+
+   Examples::
+
+        [tool.read_version]
+
+        # Set the project's version to the value of __version__ in foobar.py:
+        version = "foobar:__version__"
+
+        # Set the project's author to the value of author_name in
+        # foobar/__init__.py
+        author = "foobar.__init__:author_name"
+
+        # Set the project's license to the value of LICENSE in
+        # src/foobar/about.py:
+        license = "src.foobar.about:LICENSE"
+
+   If this syntax doesn't work for you — say, because one of your path
+   components contains a period or colon in its name, or because the file
+   doesn't have a ``.py`` extension — or if you want to set a default value for
+   when the variable isn't found, use a table value for the field instead of a
+   string, like so::
+
+        [tool.read_version]
+
+        # Set the project's version to the value of __version__ in
+        # foo.bar/__init__.pyq:
+        version = { path = ["foo.bar", "__init__.pyq"], variable = "__version__" }
+
+        # Set the project's author_email to the value of EMAIL in foobar.py.
+        # If the variable isn't found, use the value "me@example.com" instead
+        # of erroring
+        author_email = { path = ["foobar.py"], variable = "EMAIL", default = "me@example.com" }
+
+
+   Table values may contain the following keys:
 
    :path: *(Required)* The path to the source file containing the variable to
           read, relative to the project root; this may be given as either a
@@ -154,24 +196,6 @@ The Declarative Way
    :default: If the variable cannot be found in the source file, use the given
              value instead; if the variable cannot be found and ``default`` is
              not set, an error will occur
-
-   Some example entries::
-
-    # Set the project's version to the value of __version__ in packagename/__init__.py
-    [tool.read_version.version]
-    path = "packagename/__init__.py"
-
-    # Set the project's author to the value of __author__ in packagename/about.py
-    [tool.read_version.author]
-    path = ["packagename", "about.py"]
-    variable = "__author__"
-
-    # Set the project's license to the value of LICENSE in packagename/about.py.
-    # If the variable isn't found, set the license field to "Proprietary".
-    [tool.read_version.license]
-    path = ["packagename", "about.py"]
-    variable = "LICENSE"
-    default = "Proprietary"
 
 4. Done!
 
