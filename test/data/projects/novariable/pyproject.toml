@@ -7,5 +7,4 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [tool.read_version.version]
-path = "foobar/__init__.py"
-variable = "__version__"
+path = ["foobar.py"]

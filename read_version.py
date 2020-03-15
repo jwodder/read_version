@@ -159,17 +159,23 @@ def setuptools_finalizer(dist):
                     path = spec["path"]
                 except KeyError:
                     sys.exit(
-                        '"path" key of tool.read_version.{} not set in'
+                        '"path" key of tool.read_version.{} missing in'
                         ' pyproject.toml'.format(attrib)
                     )
                 if isinstance(path, list):
                     path = os.path.join(PROJECT_ROOT, *path)
                 else:
                     path = os.path.join(PROJECT_ROOT, path)
-                kwargs = {}
-                for k in ('variable', 'default'):
-                    if k in cfg[attrib]:
-                        kwargs[k] = cfg[attrib][k]
+                try:
+                    varname = spec["variable"]
+                except KeyError:
+                    sys.exit(
+                        '"variable" key of tool.read_version.{} missing in'
+                        ' pyproject.toml'.format(attrib)
+                    )
+                kwargs = {"variable": varname}
+                if 'default' in cfg[attrib]:
+                    kwargs['default'] = spec['default']
             else:
                 sys.exit('tool.read_version.{} must be a string or table'
                          .format(attrib))

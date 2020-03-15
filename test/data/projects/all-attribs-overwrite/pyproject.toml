@@ -8,6 +8,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.read_version.version]
 path = "foobar.py"
+variable = "__version__"
 
 [tool.read_version.author]
 path = "foobar.py"

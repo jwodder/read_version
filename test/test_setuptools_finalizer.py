@@ -75,8 +75,23 @@ def test_setuptools_finalizer_with_toml_nopath():
     if not isinstance(r, str):
         # Python 3
         r = r.decode()
-    assert '"path" key of tool.read_version.version not set in pyproject.toml' \
+    assert '"path" key of tool.read_version.version missing in pyproject.toml' \
         in r
+
+@pytest.mark.skipif(not has_toml, reason='Requires toml package')
+def test_setuptools_finalizer_with_toml_novariable():
+    with pytest.raises(CalledProcessError) as excinfo:
+        check_output(
+            ['python', 'setup.py', '--version'],
+            cwd=join(PROJECT_DIR, 'novariable'),
+            stderr=STDOUT,
+        )
+    r = excinfo.value.output
+    if not isinstance(r, str):
+        # Python 3
+        r = r.decode()
+    assert '"variable" key of tool.read_version.version missing in' \
+           ' pyproject.toml' in r
 
 @pytest.mark.skipif(not has_toml, reason='Requires toml package')
 def test_setuptools_finalizer_with_toml_missing_variable():
@@ -90,7 +105,9 @@ def test_setuptools_finalizer_with_toml_missing_variable():
     if not isinstance(r, str):
         # Python 3
         r = r.decode()
-    assert "No assignment to '__version__' found in file" in r
+    # Format a unicode str so that a `u` appears at the beginning of the repr
+    # in Python 2 but not Python 3
+    assert "No assignment to {!r} found in file".format(u'__version__') in r
 
 @pytest.mark.skipif(has_toml, reason='Requires toml package not installed')
 @pytest.mark.parametrize('project,option,value', [
@@ -102,6 +119,7 @@ def test_setuptools_finalizer_with_toml_missing_variable():
     ('missing-default', '--version', '0.0.0'),
     ('present-default', '--version', '0.0.0'),
     ('nopath', '--version', '0.0.0'),
+    ('novariable', '--version', '0.0.0'),
     ('all-attribs', '--version', '0.0.0'),
     ('all-attribs', '--author', 'UNKNOWN'),
     ('all-attribs', '--author-email', 'UNKNOWN'),

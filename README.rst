@@ -191,11 +191,11 @@ The Declarative Way
    :path: *(Required)* The path to the source file containing the variable to
           read, relative to the project root; this may be given as either a
           forward-slash-separated path or as a list of path components
-   :variable: The name of the Python variable to get the value from; defaults
-              to ``"__version__"``
-   :default: If the variable cannot be found in the source file, use the given
-             value instead; if the variable cannot be found and ``default`` is
-             not set, an error will occur
+   :variable: *(Required)* The name of the Python variable to get the value
+              from
+   :default: *(Optional)* If the variable cannot be found in the source file,
+             use the given value instead; if the variable cannot be found and
+             ``default`` is not set, an error will occur
 
 4. Done!
 
