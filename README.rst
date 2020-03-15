@@ -83,6 +83,7 @@ The Functional Way
             "setuptools",
             "wheel"
         ]
+        build-backend = "setuptools.build_meta"
 
 3. In your ``setup.py``, get rid of your boilerplate ``__version__``-finding
    code and replace it with::
@@ -121,6 +122,7 @@ The Declarative Way
             "setuptools >= 42.0.0",
             "wheel"
         ]
+        build-backend = "setuptools.build_meta"
 
 3. Get rid of your boilerplate ``__version__``-finding code in your
    ``setup.py``.  Instead, for each metadata field that you want to be read
