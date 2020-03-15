@@ -1,5 +1,5 @@
 from   os.path    import dirname, join
-from   subprocess import CalledProcessError, STDOUT, check_output
+from   subprocess import CalledProcessError, PIPE, STDOUT, Popen, check_output
 import pytest
 
 try:
@@ -109,6 +109,73 @@ def test_setuptools_finalizer_with_toml_missing_variable():
     # in Python 2 but not Python 3
     assert "No assignment to {!r} found in file".format(u'__version__') in r
 
+@pytest.mark.skipif(not has_toml, reason='Requires toml package')
+def test_setuptools_finalizer_with_toml_badtype():
+    with pytest.raises(CalledProcessError) as excinfo:
+        check_output(
+            ['python', 'setup.py', '--version'],
+            cwd=join(PROJECT_DIR, 'badtype'),
+            stderr=STDOUT,
+        )
+    r = excinfo.value.output
+    if not isinstance(r, str):
+        # Python 3
+        r = r.decode()
+    assert 'tool.read_version.version must be a string or table' in r
+
+@pytest.mark.skipif(not has_toml, reason='Requires toml package')
+@pytest.mark.parametrize('project,spec', [
+    ('badspec01', u'foobar:'),
+    ('badspec02', u'foobar'),
+    ('badspec03', u':__version__'),
+])
+def test_setuptools_finalizer_with_toml_badspec(project, spec):
+    with pytest.raises(CalledProcessError) as excinfo:
+        check_output(
+            ['python', 'setup.py', '--version'],
+            cwd=join(PROJECT_DIR, project),
+            stderr=STDOUT,
+        )
+    r = excinfo.value.output
+    if not isinstance(r, str):
+        # Python 3
+        r = r.decode()
+    assert 'tool.read_version.version: Invalid specifier {!r}'.format(spec) in r
+
+@pytest.mark.skipif(not has_toml, reason='Requires toml package')
+def test_setuptools_finalizer_with_toml_not_table_warning():
+    p = Popen(
+        ['python', 'setup.py', '--version'],
+        cwd=join(PROJECT_DIR, 'nottable'),
+        stdout=PIPE,
+        stderr=PIPE,
+    )
+    out, err = p.communicate()
+    if not isinstance(out, str):
+        # Python 3
+        out = out.decode()
+        err = err.decode()
+    out = out.rstrip('\r\n')
+    assert out == '0.0.0'
+    assert 'read_version: "tool.read_version" is not a table; ignoring' in err
+
+@pytest.mark.skipif(not has_toml, reason='Requires toml package')
+def test_setuptools_finalizer_with_toml_unknown_field_warning():
+    p = Popen(
+        ['python', 'setup.py', '--version'],
+        cwd=join(PROJECT_DIR, 'unkfield'),
+        stdout=PIPE,
+        stderr=PIPE,
+    )
+    out, err = p.communicate()
+    if not isinstance(out, str):
+        # Python 3
+        out = out.decode()
+        err = err.decode()
+    out = out.rstrip('\r\n')
+    assert out == '1.0.8'
+    assert 'read_version: ignoring unknown field {!r}'.format(u'foobar') in err
+
 @pytest.mark.skipif(has_toml, reason='Requires toml package not installed')
 @pytest.mark.parametrize('project,option,value', [
     ('flat-path', '--version', '0.0.0'),
@@ -151,6 +218,12 @@ def test_setuptools_finalizer_with_toml_missing_variable():
     ('all-attribs-ep', '--maintainer', 'UNKNOWN'),
     ('all-attribs-ep', '--maintainer-email', 'UNKNOWN'),
     ('all-attribs-ep', '--url', 'UNKNOWN'),
+    ('nottable', '--version', '0.0.0'),
+    ('unkfield', '--version', '0.0.0'),
+    ('badtype', '--version', '0.0.0'),
+    ('badspec01', '--version', '0.0.0'),
+    ('badspec02', '--version', '0.0.0'),
+    ('badspec03', '--version', '0.0.0'),
 ])
 def test_setuptools_finalizer_without_toml(project, option, value):
     r = check_output(

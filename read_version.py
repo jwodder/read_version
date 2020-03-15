@@ -148,9 +148,6 @@ def setuptools_finalizer(dist):
                     sys.exit('tool.read_version.{}: Invalid specifier {!r}'
                              .format(attrib, spec))
                 path = modpath.split('.')
-                if not path:
-                    sys.exit('tool.read_version.{}: Invalid specifier {!r}'
-                             .format(attrib, spec))
                 path[-1] += '.py'
                 path = os.path.join(PROJECT_ROOT, *path)
                 kwargs = {"variable": varname}
