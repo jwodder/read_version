@@ -162,7 +162,10 @@ def setuptools_finalizer(dist):
                 if isinstance(path, list):
                     path = os.path.join(PROJECT_ROOT, *path)
                 else:
-                    path = os.path.join(PROJECT_ROOT, path)
+                    sys.exit(
+                        '"path" key of tool.read_version.{} must be a list'
+                        .format(attrib)
+                    )
                 try:
                     varname = spec["variable"]
                 except KeyError:

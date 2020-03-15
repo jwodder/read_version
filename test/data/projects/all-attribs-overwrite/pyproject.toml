@@ -7,37 +7,37 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [tool.read_version.version]
-path = "foobar.py"
+path = ["foobar.py"]
 variable = "__version__"
 
 [tool.read_version.author]
-path = "foobar.py"
+path = ["foobar.py"]
 variable = "__author__"
 
 [tool.read_version.author_email]
-path = "foobar.py"
+path = ["foobar.py"]
 variable = "__author_email__"
 
 [tool.read_version.description]
-path = "foobar.py"
+path = ["foobar.py"]
 variable = "__description__"
 
 [tool.read_version.keywords]
-path = "foobar.py"
+path = ["foobar.py"]
 variable = "__keywords__"
 
 [tool.read_version.license]
-path = "foobar.py"
+path = ["foobar.py"]
 variable = "__license__"
 
 [tool.read_version.maintainer]
-path = "foobar.py"
+path = ["foobar.py"]
 variable = "__maintainer__"
 
 [tool.read_version.maintainer_email]
-path = "foobar.py"
+path = ["foobar.py"]
 variable = "__maintainer_email__"
 
 [tool.read_version.url]
-path = "foobar.py"
+path = ["foobar.py"]
 variable = "__url__"

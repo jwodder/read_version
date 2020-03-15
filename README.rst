@@ -189,8 +189,7 @@ The Declarative Way
    Table values may contain the following keys:
 
    :path: *(Required)* The path to the source file containing the variable to
-          read, relative to the project root; this may be given as either a
-          forward-slash-separated path or as a list of path components
+          read, relative to the project root, as a list of path components
    :variable: *(Required)* The name of the Python variable to get the value
               from
    :default: *(Optional)* If the variable cannot be found in the source file,

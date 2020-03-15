@@ -13,8 +13,6 @@ PROJECT_DIR = join(dirname(__file__), 'data', 'projects')
 
 @pytest.mark.skipif(not has_toml, reason='Requires toml package')
 @pytest.mark.parametrize('project,option,value', [
-    ('flat-path', '--version', '23.42'),
-    ('slash-path', '--version', '1.2.3.4'),
     ('list-path', '--version', '1.3.2.4'),
     ('altvariable', '--version', '4.2.2.3'),
     ('missing-default', '--version', '0.1.0'),
@@ -124,6 +122,20 @@ def test_setuptools_finalizer_with_toml_badtype():
     assert 'tool.read_version.version must be a string or table' in r
 
 @pytest.mark.skipif(not has_toml, reason='Requires toml package')
+def test_setuptools_finalizer_with_toml_strpath():
+    with pytest.raises(CalledProcessError) as excinfo:
+        check_output(
+            ['python', 'setup.py', '--version'],
+            cwd=join(PROJECT_DIR, 'str-path'),
+            stderr=STDOUT,
+        )
+    r = excinfo.value.output
+    if not isinstance(r, str):
+        # Python 3
+        r = r.decode()
+    assert '"path" key of tool.read_version.version must be a list' in r
+
+@pytest.mark.skipif(not has_toml, reason='Requires toml package')
 @pytest.mark.parametrize('project,spec', [
     ('badspec01', u'foobar:'),
     ('badspec02', u'foobar'),
@@ -178,8 +190,7 @@ def test_setuptools_finalizer_with_toml_unknown_field_warning():
 
 @pytest.mark.skipif(has_toml, reason='Requires toml package not installed')
 @pytest.mark.parametrize('project,option,value', [
-    ('flat-path', '--version', '0.0.0'),
-    ('slash-path', '--version', '0.0.0'),
+    ('str-path', '--version', '0.0.0'),
     ('list-path', '--version', '0.0.0'),
     ('altvariable', '--version', '0.0.0'),
     ('missing', '--version', '0.0.0'),
