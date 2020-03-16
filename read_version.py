@@ -126,13 +126,13 @@ def setuptools_finalizer(dist):
     try:
         import toml
     except ImportError:
-        log.info('read_version: toml not installed; not using pyproject.toml')
+        log.debug('read_version: toml not installed; not using pyproject.toml')
         return
     try:
         cfg = toml.load(os.path.join(PROJECT_ROOT, 'pyproject.toml'))
     except IOError as e:
         if e.errno == ENOENT:
-            log.info('read_version: pyproject.toml not found')
+            log.debug('read_version: pyproject.toml not found')
             return
         else:
             raise
@@ -179,7 +179,7 @@ def setuptools_finalizer(dist):
             else:
                 sys.exit('tool.read_version.{} must be a string or table'
                          .format(attrib))
-            log.info('read_version: reading %s value from file', attrib)
+            log.debug('read_version: reading %s value from file', attrib)
             value = read_version(path, **kwargs)
             setattr(dist.metadata, attrib, value)
         else:
