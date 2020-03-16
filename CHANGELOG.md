@@ -1,5 +1,5 @@
-v0.2.0 (in development)
------------------------
+v0.2.0 (2020-03-16)
+-------------------
 - Support Python 3.8
 - Drop support for Python 3.4
 - Support describing what attributes to read from where via a `pyproject.toml`
