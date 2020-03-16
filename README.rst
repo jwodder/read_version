@@ -95,7 +95,10 @@ The Functional Way
             ...
         )
 
-4. Done!
+4. Build your project and double-check that the version is set to the correct
+   value.
+
+5. Done!
 
 The Declarative Way
 -------------------
@@ -171,22 +174,24 @@ The Declarative Way
    If this syntax doesn't work for you — say, because one of your path
    components contains a period or colon in its name, or because the file
    doesn't have a ``.py`` extension — or if you want to set a default value for
-   when the variable isn't found, use a table value for the field instead of a
-   string, like so::
-
-        [tool.read_version]
+   when the variable isn't found, then make ``tool.read_version.FIELD`` into a
+   table, like so::
 
         # Set the project's version to the value of __version__ in
         # foo.bar/__init__.pyq:
-        version = { path = ["foo.bar", "__init__.pyq"], variable = "__version__" }
+        [tool.read_version.version]
+        path = ["foo.bar", "__init__.pyq"]
+        variable = "__version__"
 
         # Set the project's author_email to the value of EMAIL in foobar.py.
         # If the variable isn't found, use the value "me@example.com" instead
         # of erroring
-        author_email = { path = ["foobar.py"], variable = "EMAIL", default = "me@example.com" }
+        [tool.read_version.author_email]
+        path = ["foobar.py"]
+        variable = "EMAIL"
+        default = "me@example.com"
 
-
-   Table values may contain the following keys:
+   ``tool.read_version.FIELD`` tables may contain the following keys:
 
    :path: *(Required)* The path to the source file containing the variable to
           read, relative to the project root, as a list of path components
@@ -196,7 +201,10 @@ The Declarative Way
              use the given value instead; if the variable cannot be found and
              ``default`` is not set, an error will occur
 
-4. Done!
+4. Build your project and double-check that the metadata has all the relevant
+   fields set to their correct values.
+
+5. Done!
 
 API
 ===
