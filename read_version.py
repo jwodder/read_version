@@ -30,7 +30,7 @@ via your ``pyproject.toml``.
 Visit <https://github.com/jwodder/read_version> for more information.
 """
 
-__version__      = '0.2.0'
+__version__      = '0.3.0.dev1'
 __author__       = 'John Thorvald Wodder II'
 __author_email__ = 'read-version@varonathe.org'
 __license__      = 'MIT'
@@ -59,7 +59,8 @@ def read_version(*fpath, **kwargs):
 
     The ``variable`` keyword argument can be set to the name of a variable
     other than ``__version__`` to search for assignments to a different
-    variable instead.
+    variable instead.  Setting it to ``"__doc__"`` causes the function to
+    return the module docstring.
 
     If no assignments to the variable are found, a ``ValueError`` is raised.
     To instead return a default value when this happens, set the ``default``
@@ -80,6 +81,13 @@ def read_version(*fpath, **kwargs):
         result = kwargs["default"]
     except KeyError:
         pass
+    if variable == "__doc__":
+        result = ast.get_docstring(top_level, clean=False)
+        if result is None:
+            if "default" in kwargs:
+                result = kwargs["default"]
+            else:
+                del result
     for statement in top_level.body:
         if isinstance(statement, ast.Assign):
             for target in statement.targets:

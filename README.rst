@@ -224,6 +224,7 @@ the last value assigned.
 
 The ``variable`` keyword argument can be set to the name of a variable other
 than ``__version__`` to search for assignments to a different variable instead.
+Setting it to ``"__doc__"`` causes the function to return the module docstring.
 
 If no assignments to the variable are found, a ``ValueError`` is raised.  To
 instead return a default value when this happens, set the ``default`` keyword

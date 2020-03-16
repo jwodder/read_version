@@ -28,7 +28,7 @@ def test_missing(fname):
         ValueError,
         match="No assignment to '__version__' found in file",
     ):
-        assert read_version('data', 'missing', fname)
+        read_version('data', 'missing', fname)
 
 @pytest.mark.parametrize('fname', os.listdir(join(DATA_DIR, 'missing_custom')))
 def test_missing_custom(fname):
@@ -36,8 +36,7 @@ def test_missing_custom(fname):
         ValueError,
         match="No assignment to '__custom__' found in file",
     ):
-        assert read_version('data', 'missing_custom', fname,
-                            variable='__custom__')
+        read_version('data', 'missing_custom', fname, variable='__custom__')
 
 def test_default_missing():
     assert read_version(
@@ -54,4 +53,31 @@ def test_default_not_missing():
 @pytest.mark.parametrize('fname', os.listdir(join(DATA_DIR, 'invalid')))
 def test_invalid(fname):
     with pytest.raises((ValueError, TypeError)):
-        assert read_version('data', 'invalid', fname)
+        read_version('data', 'invalid', fname)
+
+@pytest.mark.parametrize('filename,expected', [
+    ('onestring.py', '\nThis is a docstring.\n'),
+    ('adjstrings.py', ' This is a  docstring. '),
+    ('twostrings.py', ' This is a docstring. '),
+    ('overridden.py', 'This overrides the module docstring.'),
+])
+def test_docstring(filename, expected):
+    s = read_version('data', 'docstrings', filename, variable="__doc__")
+    assert s == expected
+
+def test_no_docstring():
+    with pytest.raises(
+        ValueError,
+        match="No assignment to '__doc__' found in file",
+    ):
+        read_version('data', 'docstrings', 'nodoc.py', variable="__doc__")
+
+def test_no_docstring_default():
+    s = read_version('data', 'docstrings', 'nodoc.py', variable="__doc__",
+                     default="default")
+    assert s == "default"
+
+def test_docstring_default():
+    s = read_version('data', 'docstrings', 'onestring.py', variable="__doc__",
+                     default="default")
+    assert s == '\nThis is a docstring.\n'

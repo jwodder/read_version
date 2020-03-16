@@ -1,3 +1,7 @@
+v0.3.0 (in development)
+-----------------------
+- Support fetching module docstrings with `variable="__doc__"`
+
 v0.2.0 (2020-03-16)
 -------------------
 - Support Python 3.8
