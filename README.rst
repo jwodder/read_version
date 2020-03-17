@@ -79,7 +79,7 @@ The Functional Way
 
         [build-system]
         requires = [
-            "read_version ~= 0.2.0",
+            "read_version ~= 0.3.0",
             "setuptools",
             "wheel"
         ]
@@ -121,7 +121,7 @@ The Declarative Way
 
         [build-system]
         requires = [
-            "read_version[toml] ~= 0.2.0",
+            "read_version[toml] ~= 0.3.0",
             "setuptools >= 42.0.0",
             "wheel"
         ]

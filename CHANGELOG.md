@@ -1,5 +1,5 @@
-v0.3.0 (in development)
------------------------
+v0.3.0 (2020-03-17)
+-------------------
 - Support fetching module docstrings with `variable="__doc__"`
 
 v0.2.0 (2020-03-16)
