@@ -123,32 +123,11 @@ try:
 except NameError:
     basestring = str
 
-def setuptools_finalizer(dist):
-    # I *think* it's reasonable to assume that the project root is always the
-    # current directory when this function is called.  Setuptools doesn't seem
-    # to have decent support for running `setup.py` from another directory, and
-    # the pep517.build command changes the working directory to the project
-    # directory when run.  PEP 517 also says, "All hooks are run with working
-    # directory set to the root of the source tree".
-    PROJECT_ROOT = os.path.abspath(os.curdir)
-    try:
-        import toml
-    except ImportError:
-        log.debug('read_version: toml not installed; not using pyproject.toml')
-        return
-    try:
-        cfg = toml.load(os.path.join(PROJECT_ROOT, 'pyproject.toml'))
-    except IOError as e:
-        if e.errno == ENOENT:
-            log.debug('read_version: pyproject.toml not found')
-            return
-        else:
-            raise
-    cfg = cfg.get("tool", {}).get("read_version", {})
-    if not isinstance(cfg, dict):
+def setuptools_finalizer(dist, setupPyDir=None, pyProjectTomlSection=None):
+    if not isinstance(pyProjectTomlSection, dict):
         log.warn('read_version: "tool.read_version" is not a table; ignoring')
         return
-    for attrib, spec in cfg.items():
+    for attrib, spec in pyProjectTomlSection.items():
         if attrib in SETTABLE_METADATA_ATTRIBUTES:
             if isinstance(spec, basestring):
                 modpath, _, varname = spec.partition(':')
@@ -157,7 +136,7 @@ def setuptools_finalizer(dist):
                              .format(attrib, spec))
                 path = modpath.split('.')
                 path[-1] += '.py'
-                path = os.path.join(PROJECT_ROOT, *path)
+                path = os.path.join(setupPyDir, *path)
                 kwargs = {"variable": varname}
             elif isinstance(spec, dict):
                 try:
@@ -168,7 +147,7 @@ def setuptools_finalizer(dist):
                         ' pyproject.toml'.format(attrib)
                     )
                 if isinstance(path, list):
-                    path = os.path.join(PROJECT_ROOT, *path)
+                    path = os.path.join(setupPyDir, *path)
                 else:
                     sys.exit(
                         '"path" key of tool.read_version.{} must be a list'
@@ -182,7 +161,7 @@ def setuptools_finalizer(dist):
                         ' pyproject.toml'.format(attrib)
                     )
                 kwargs = {"variable": varname}
-                if 'default' in cfg[attrib]:
+                if 'default' in pyProjectTomlSection[attrib]:
                     kwargs['default'] = spec['default']
             else:
                 sys.exit('tool.read_version.{} must be a string or table'
