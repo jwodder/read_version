@@ -3,8 +3,8 @@
     :alt: Project Status: Active — The project has reached a stable, usable
           state and is being actively developed.
 
-.. image:: https://travis-ci.org/jwodder/read_version.svg?branch=master
-    :target: https://travis-ci.org/jwodder/read_version
+.. image:: https://travis-ci.com/jwodder/read_version.svg?branch=master
+    :target: https://travis-ci.com/jwodder/read_version
 
 .. image:: https://codecov.io/gh/jwodder/read_version/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/jwodder/read_version
