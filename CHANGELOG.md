@@ -1,5 +1,5 @@
-v0.3.1 (in development)
------------------------
+v0.3.1 (2020-07-12)
+-------------------
 - Import setuptools before importing distutils.  This way, users who import
   `read_version` before importing setuptools 49.2.0 (or any later versions with
   the same behavior) will not get a warning about importing distutils before
