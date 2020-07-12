@@ -30,19 +30,23 @@ via your ``pyproject.toml``.
 Visit <https://github.com/jwodder/read_version> for more information.
 """
 
-__version__      = '0.3.0'
+__version__      = '0.3.1.dev1'
 __author__       = 'John Thorvald Wodder II'
 __author_email__ = 'read-version@varonathe.org'
 __license__      = 'MIT'
 __url__          = 'https://github.com/jwodder/read_version'
 
 import ast
-from   distutils import log
 from   errno     import ENOENT
 import inspect
 import os
 import os.path
 import sys
+# Starting in v49.2.0, setuptools warns if distutils is imported before it.  We
+# thus need to import setuptools before distutils so that any users of this
+# library that import it before setuptools don't get a warning.
+import setuptools  # noqa: F401
+from   distutils import log  # noqa: I100
 
 __all__ = ['read_version']
 
