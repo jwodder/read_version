@@ -1,3 +1,7 @@
+v0.4.0 (in development)
+-----------------------
+- Support Python 3.9
+
 v0.3.1 (2020-07-12)
 -------------------
 - Import setuptools before importing distutils.  This way, users who import
