@@ -1,4 +1,9 @@
-from setuptools   import setup
+import os.path
+import sys
+from   setuptools import setup
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
+
 from read_version import read_version
 
-setup(version=read_version('read_version.py'))
+setup(version=read_version('src', 'read_version.py'))
