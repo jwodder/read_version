@@ -50,15 +50,16 @@ via your ``pyproject.toml``.
 
 Installation
 ============
-Just use `pip <https://pip.pypa.io>`_ (You have pip, right?) to install
-``read_version``::
+``read_version`` requires Python 3.6 or higher.  Just use `pip
+<https://pip.pypa.io>`_ for Python 3 (You have pip, right?) to install
+``read_version`` and its dependencies::
 
-    pip install read_version
+    python3 -m pip install read_version
 
 ``read_version`` also has a ``toml`` extra that provides support for
 reading configuration from ``pyproject.toml``.  Install it with::
 
-    pip install 'read_version[toml]'
+    python3 -m pip install "read_version[toml]"
 
 
 Usage

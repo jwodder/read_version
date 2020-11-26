@@ -37,7 +37,6 @@ __license__      = 'MIT'
 __url__          = 'https://github.com/jwodder/read_version'
 
 import ast
-from   errno     import ENOENT
 import inspect
 import os
 import os.path
@@ -107,7 +106,7 @@ def read_version(*fpath, **kwargs):
     try:
         return result
     except NameError:
-        raise ValueError('No assignment to {!r} found in file'.format(variable))
+        raise ValueError(f'No assignment to {variable!r} found in file')
 
 
 SETTABLE_METADATA_ATTRIBUTES = {
@@ -121,11 +120,6 @@ SETTABLE_METADATA_ATTRIBUTES = {
     'url',
     'version',
 }
-
-try:
-    basestring
-except NameError:
-    basestring = str
 
 def setuptools_finalizer(dist):
     # I *think* it's reasonable to assume that the project root is always the
@@ -142,23 +136,22 @@ def setuptools_finalizer(dist):
         return
     try:
         cfg = toml.load(os.path.join(PROJECT_ROOT, 'pyproject.toml'))
-    except IOError as e:
-        if e.errno == ENOENT:
-            log.debug('read_version: pyproject.toml not found')
-            return
-        else:
-            raise
+    except FileNotFoundError:
+        log.debug('read_version: pyproject.toml not found')
+        return
     cfg = cfg.get("tool", {}).get("read_version", {})
     if not isinstance(cfg, dict):
         log.warn('read_version: "tool.read_version" is not a table; ignoring')
         return
     for attrib, spec in cfg.items():
         if attrib in SETTABLE_METADATA_ATTRIBUTES:
-            if isinstance(spec, basestring):
+            if isinstance(spec, str):
                 modpath, _, varname = spec.partition(':')
                 if not modpath or not varname:
-                    sys.exit('tool.read_version.{}: Invalid specifier {!r}'
-                             .format(attrib, spec))
+                    sys.exit(
+                        f'tool.read_version.{attrib}:'
+                        f' Invalid specifier {spec!r}'
+                    )
                 path = modpath.split('.')
                 path[-1] += '.py'
                 path = os.path.join(PROJECT_ROOT, *path)
@@ -168,29 +161,27 @@ def setuptools_finalizer(dist):
                     path = spec["path"]
                 except KeyError:
                     sys.exit(
-                        '"path" key of tool.read_version.{} missing in'
-                        ' pyproject.toml'.format(attrib)
+                        f'"path" key of tool.read_version.{attrib} missing in'
+                        ' pyproject.toml'
                     )
                 if isinstance(path, list):
                     path = os.path.join(PROJECT_ROOT, *path)
                 else:
                     sys.exit(
-                        '"path" key of tool.read_version.{} must be a list'
-                        .format(attrib)
+                        f'"path" key of tool.read_version.{attrib} must be a list'
                     )
                 try:
                     varname = spec["variable"]
                 except KeyError:
                     sys.exit(
-                        '"variable" key of tool.read_version.{} missing in'
-                        ' pyproject.toml'.format(attrib)
+                        f'"variable" key of tool.read_version.{attrib} missing'
+                        ' in pyproject.toml'
                     )
                 kwargs = {"variable": varname}
                 if 'default' in cfg[attrib]:
                     kwargs['default'] = spec['default']
             else:
-                sys.exit('tool.read_version.{} must be a string or table'
-                         .format(attrib))
+                sys.exit(f'tool.read_version.{attrib} must be a string or table')
             log.debug('read_version: reading %s value from file', attrib)
             value = read_version(path, **kwargs)
             setattr(dist.metadata, attrib, value)
