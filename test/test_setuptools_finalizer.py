@@ -65,14 +65,12 @@ def test_setuptools_finalizer_with_toml(project, option, value):
 @pytest.mark.parametrize('project,errmsg', [
     ('nopath', '"path" key of tool.read_version.version missing in pyproject.toml'),
     ('novariable', '"variable" key of tool.read_version.version missing in pyproject.toml'),
-    # Format a unicode str so that a `u` appears at the beginning of the repr
-    # in Python 2 but not Python 3
-    ('missing', "No assignment to {!r} found in file".format(u'__version__')),
+    ('missing', "No assignment to '__version__' found in file"),
     ('badtype', 'tool.read_version.version must be a string or table'),
     ('str-path', '"path" key of tool.read_version.version must be a list'),
-    ('badspec01', 'tool.read_version.version: Invalid specifier {!r}'.format(u'foobar:')),
-    ('badspec02', 'tool.read_version.version: Invalid specifier {!r}'.format(u'foobar')),
-    ('badspec03', 'tool.read_version.version: Invalid specifier {!r}'.format(u':__version__')),
+    ('badspec01', "tool.read_version.version: Invalid specifier 'foobar:'"),
+    ('badspec02', "tool.read_version.version: Invalid specifier 'foobar'"),
+    ('badspec03', "tool.read_version.version: Invalid specifier ':__version__'"),
 ])
 def test_setuptools_finalizer_with_toml_error(project, errmsg):
     p = Popen(
@@ -122,7 +120,7 @@ def test_setuptools_finalizer_with_toml_unknown_field_warning():
         err = err.decode()
     out = out.rstrip('\r\n')
     assert out == '1.0.8'
-    assert 'read_version: ignoring unknown field {!r}'.format(u'foobar') in err
+    assert "read_version: ignoring unknown field 'foobar'" in err
 
 @pytest.mark.skipif(has_toml, reason='Requires toml package not installed')
 @pytest.mark.parametrize('project,option,value', [
