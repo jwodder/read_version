@@ -21,6 +21,9 @@ jobs:
         toxenv:
           - py-toml
           - py-notoml
+        include:
+          - python-version: '3.6'
+            toxenv: lint
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
@@ -35,10 +38,16 @@ jobs:
           python -m pip install --upgrade pip wheel
           python -m pip install --upgrade --upgrade-strategy=eager tox
 
-      - name: Run tests
+      - name: Run tests with coverage
+        if: startsWith(matrix.toxenv, 'py')
         run: tox -e ${{ matrix.toxenv }} -- --cov-report=xml
 
+      - name: Run generic tests
+        if: "!startsWith(matrix.toxenv, 'py')"
+        run: tox -e ${{ matrix.toxenv }}
+
       - name: Upload coverage to Codecov
+        if: startsWith(matrix.toxenv, 'py')
         uses: codecov/codecov-action@v1
         with:
           fail_ci_if_error: false
