@@ -1,1 +1,1 @@
-""" This is a """ ''' docstring. '''
+""" This is a """ """ docstring. """

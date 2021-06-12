@@ -30,24 +30,26 @@ via your ``pyproject.toml``.
 Visit <https://github.com/jwodder/read_version> for more information.
 """
 
-__version__      = '0.4.0.dev1'
-__author__       = 'John Thorvald Wodder II'
-__author_email__ = 'read-version@varonathe.org'
-__license__      = 'MIT'
-__url__          = 'https://github.com/jwodder/read_version'
+__version__ = "0.4.0.dev1"
+__author__ = "John Thorvald Wodder II"
+__author_email__ = "read-version@varonathe.org"
+__license__ = "MIT"
+__url__ = "https://github.com/jwodder/read_version"
 
 import ast
 import inspect
 import os
 import os.path
 import sys
+
 # Starting in v49.2.0, setuptools warns if distutils is imported before it.  We
 # thus need to import setuptools before distutils so that any users of this
 # library that import it before setuptools don't get a warning.
 import setuptools  # noqa: F401
-from   distutils import log  # noqa: I100
+from distutils import log  # noqa: I100
 
-__all__ = ['read_version']
+__all__ = ["read_version"]
+
 
 def read_version(*fpath, **kwargs):
     """
@@ -71,12 +73,12 @@ def read_version(*fpath, **kwargs):
     """
 
     if not fpath:
-        raise ValueError('No filepath passed to read_version()')
+        raise ValueError("No filepath passed to read_version()")
     fpath = os.path.join(*fpath)
     if not os.path.isabs(fpath):
         caller_file = inspect.stack()[1][0].f_globals["__file__"]
         fpath = os.path.join(os.path.dirname(caller_file), fpath)
-    with open(fpath, 'rb') as fp:
+    with open(fpath, "rb") as fp:
         src = fp.read()
     top_level = ast.parse(src)
     variable = kwargs.get("variable", "__version__")
@@ -95,10 +97,12 @@ def read_version(*fpath, **kwargs):
         if isinstance(statement, ast.Assign):
             for target in statement.targets:
                 if isinstance(target, ast.Tuple):
-                    if any(isinstance(t, ast.Name) and t.id == variable
-                           for t in target.elts):
+                    if any(
+                        isinstance(t, ast.Name) and t.id == variable
+                        for t in target.elts
+                    ):
                         value = ast.literal_eval(statement.value)
-                        for t,v in zip(target.elts, value):
+                        for t, v in zip(target.elts, value):
                             if isinstance(t, ast.Name) and t.id == variable:
                                 result = v
                 elif isinstance(target, ast.Name) and target.id == variable:
@@ -106,20 +110,21 @@ def read_version(*fpath, **kwargs):
     try:
         return result
     except NameError:
-        raise ValueError(f'No assignment to {variable!r} found in file')
+        raise ValueError(f"No assignment to {variable!r} found in file")
 
 
 SETTABLE_METADATA_ATTRIBUTES = {
-    'author',
-    'author_email',
-    'description',
-    'keywords',
-    'license',
-    'maintainer',
-    'maintainer_email',
-    'url',
-    'version',
+    "author",
+    "author_email",
+    "description",
+    "keywords",
+    "license",
+    "maintainer",
+    "maintainer_email",
+    "url",
+    "version",
 }
+
 
 def setuptools_finalizer(dist):
     # I *think* it's reasonable to assume that the project root is always the
@@ -132,12 +137,12 @@ def setuptools_finalizer(dist):
     try:
         import toml
     except ImportError:
-        log.debug('read_version: toml not installed; not using pyproject.toml')
+        log.debug("read_version: toml not installed; not using pyproject.toml")
         return
     try:
-        cfg = toml.load(os.path.join(PROJECT_ROOT, 'pyproject.toml'))
+        cfg = toml.load(os.path.join(PROJECT_ROOT, "pyproject.toml"))
     except FileNotFoundError:
-        log.debug('read_version: pyproject.toml not found')
+        log.debug("read_version: pyproject.toml not found")
         return
     cfg = cfg.get("tool", {}).get("read_version", {})
     if not isinstance(cfg, dict):
@@ -146,14 +151,13 @@ def setuptools_finalizer(dist):
     for attrib, spec in cfg.items():
         if attrib in SETTABLE_METADATA_ATTRIBUTES:
             if isinstance(spec, str):
-                modpath, _, varname = spec.partition(':')
+                modpath, _, varname = spec.partition(":")
                 if not modpath or not varname:
                     sys.exit(
-                        f'tool.read_version.{attrib}:'
-                        f' Invalid specifier {spec!r}'
+                        f"tool.read_version.{attrib}:" f" Invalid specifier {spec!r}"
                     )
-                path = modpath.split('.')
-                path[-1] += '.py'
+                path = modpath.split(".")
+                path[-1] += ".py"
                 path = os.path.join(PROJECT_ROOT, *path)
                 kwargs = {"variable": varname}
             elif isinstance(spec, dict):
@@ -162,28 +166,26 @@ def setuptools_finalizer(dist):
                 except KeyError:
                     sys.exit(
                         f'"path" key of tool.read_version.{attrib} missing in'
-                        ' pyproject.toml'
+                        " pyproject.toml"
                     )
                 if isinstance(path, list):
                     path = os.path.join(PROJECT_ROOT, *path)
                 else:
-                    sys.exit(
-                        f'"path" key of tool.read_version.{attrib} must be a list'
-                    )
+                    sys.exit(f'"path" key of tool.read_version.{attrib} must be a list')
                 try:
                     varname = spec["variable"]
                 except KeyError:
                     sys.exit(
                         f'"variable" key of tool.read_version.{attrib} missing'
-                        ' in pyproject.toml'
+                        " in pyproject.toml"
                     )
                 kwargs = {"variable": varname}
-                if 'default' in cfg[attrib]:
-                    kwargs['default'] = spec['default']
+                if "default" in cfg[attrib]:
+                    kwargs["default"] = spec["default"]
             else:
-                sys.exit(f'tool.read_version.{attrib} must be a string or table')
-            log.debug('read_version: reading %s value from file', attrib)
+                sys.exit(f"tool.read_version.{attrib} must be a string or table")
+            log.debug("read_version: reading %s value from file", attrib)
             value = read_version(path, **kwargs)
             setattr(dist.metadata, attrib, value)
         else:
-            log.warn('read_version: ignoring unknown field %r', attrib)
+            log.warn("read_version: ignoring unknown field %r", attrib)
