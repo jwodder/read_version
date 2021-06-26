@@ -1,7 +1,8 @@
-.. image:: http://www.repostatus.org/badges/latest/active.svg
-    :target: http://www.repostatus.org/#active
-    :alt: Project Status: Active — The project has reached a stable, usable
-          state and is being actively developed.
+.. image:: https://www.repostatus.org/badges/latest/inactive.svg
+   :target: https://www.repostatus.org/#inactive
+   :alt: Project Status: Inactive – The project has reached a stable, usable
+         state but is no longer being actively developed; support/maintenance
+         will be provided as time allows.
 
 .. image:: https://github.com/jwodder/read_version/workflows/Test/badge.svg?branch=master
     :target: https://github.com/jwodder/read_version/actions?workflow=Test
