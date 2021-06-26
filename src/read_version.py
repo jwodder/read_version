@@ -46,7 +46,8 @@ import sys
 # thus need to import setuptools before distutils so that any users of this
 # library that import it before setuptools don't get a warning.
 import setuptools  # noqa: F401
-from distutils import log  # noqa: I100
+
+from distutils import log  # noqa
 
 __all__ = ["read_version"]
 
