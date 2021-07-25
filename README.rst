@@ -23,6 +23,12 @@
 | `Issues <https://github.com/jwodder/read_version/issues>`_
 | `Changelog <https://github.com/jwodder/read_version/blob/master/CHANGELOG.md>`_
 
+**Note:** As of the release of setuptools 46.4.0, setuptools natively supports
+using the ``attr:`` directive in ``setup.cfg`` to set the project version based
+on static analysis of the project source.  This makes the bulk of
+``read_version``'s use cases obsolete, and so it will not receive further
+development.
+
 When creating a ``setup.py`` for a new project, do you find yourself always
 writing the same block of code for parsing ``__version__`` from your project's
 source?  Something like this?
