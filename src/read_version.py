@@ -30,7 +30,7 @@ via your ``pyproject.toml``.
 Visit <https://github.com/jwodder/read_version> for more information.
 """
 
-__version__ = "0.4.0.dev1"
+__version__ = "0.3.2"
 __author__ = "John Thorvald Wodder II"
 __author_email__ = "read-version@varonathe.org"
 __license__ = "MIT"
